@@ -17,7 +17,7 @@ public interface Item {
 
     static Item from(final int id, final RandomDataGenerator rdg) {
         final String name = rdg.randomWord(6,16);
-        final int price = Math.abs(rdg.rand().nextInt(10000));
+        final double price = rdg.rand().nextDouble() * 10000;
         final String data = rdg.randomWord(16,256);
         return new Item() {
             @Override public int getId() { return id; }

@@ -3,80 +3,36 @@
  */
 package csc733.group5;
 
-import csc733.group5.data.*;
-import org.javatuples.Pair;
+import csc733.group5.data.RandomInitialState;
 import org.neo4j.driver.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class App {
-
-    private static final int NUM_CUST_PER_DIST = // 3000;
-            10;
-    private static final int NUM_ITEMS = // 10000;
-            200;
-    private static final int NUM_ORDERS = // 30000;
-            200;
-
-
-    private static final String CREATE_WH_TMPL = "create (w:Warehouse %s)\n";
-    private static final String CREATE_D_TMPL = "create (w)-[:W_SVC_D]->(d_%d:District %s)\n";
-    private static final String CREATE_I_S_TMPL = "create (w)-[:WH_STOCK]->(:Stock %s)<-[:I_STOCK]-(i_%d:Item %s)\n";
-    private static final String CREATE_C_TMPL = "create (d_%d:District)-[:D_SVC_C]->(c_%d %s)\n";
 
     public static void main(String[] args) {
         System.out.println("Hello CSC733 World");
 
-        final RandomDataGenerator rdg = new RandomDataGenerator(42);
+        final String cypherText = new RandomInitialState(new RandomDataGenerator(42)).toCypherCreate();
 
-        final Driver driver = GraphDatabase.driver("bolt://localhost:7687",
-                AuthTokens.basic("neo4j", "secret"));
-
-        final StringBuilder cypher = new StringBuilder();
-        // create a warehouse
-        cypher.append(String.format(CREATE_WH_TMPL, Warehouse.from(1, rdg)));
-        // create 10 districts for the warehouse
-        for (int i = 0; i < 10; i++) {
-            cypher.append(String.format(CREATE_D_TMPL, i, District.from(i, rdg)));
-        }
-        // create 100k items
-        final List<Item> items = new ArrayList<>(NUM_ITEMS);
-        for (int i = 0; i < NUM_ITEMS; i++) {
-            final Item item = Item.from(i, rdg);
-            items.add(item);
-            cypher.append(String.format(CREATE_I_S_TMPL, i, Stock.from(rdg), i, item));
-        }
-        // create 30k customers
-        for (int i = 0; i < 10; i++) {
-            final int ik = i * 1000;
-            for (int j = 0; j < NUM_CUST_PER_DIST; j++) {
-                final int cid = ik + j;
-                cypher.append(String.format(CREATE_C_TMPL, i, cid, Customer.from(cid, rdg)));
-            }
-        }
-        for (int i = 0; i < NUM_ORDERS; i++) {
-
-        }
-        final String cypherText = cypher.toString();
         System.out.println("Submitting the following cypher:");
         System.out.println("********************************************************************************");
         System.out.println(cypherText);
         System.out.println("********************************************************************************");
 
+
+        final Driver driver = GraphDatabase.driver("bolt://localhost:7687",
+                AuthTokens.basic("neo4j", "secret"));
         try (final Session session = driver.session()) {
             final Transaction tx = session.beginTransaction();
             // Clear everything already in the database
             tx.run("match (n) detach delete n");
 
-            // Now run the creation query
+            System.out.println("Executing query");
             tx.run(cypherText);
-
+            System.out.println("Query execution completed; attempting to commit");
             tx.commit();
+            System.out.println("Commit completed, closing driver");
         }
-
         driver.close();
+        System.out.println("Driver closed, application exiting");
     }
 }

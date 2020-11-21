@@ -25,12 +25,6 @@ public class RandomDataGenerator {
             "{ O_ENTRY_D : '%s', " +
                     "O_OL_CNT : %d, " +
                     "O_ALL_LOCAL : %d }";
-
-    private static final String OL_TMPL =
-            "OL_DELIVERY_D : '%s', " +
-                    "OL_QUANTITY : %d, " +
-                    "OL_AMOUNT : %d, " +
-                    "OL_DIST_INFO : '%s' }";
     private final Random rand;
 
     public RandomDataGenerator() { rand = new Random(); }
@@ -73,8 +67,8 @@ public class RandomDataGenerator {
     public String randomDate() {
         return DATE_FORMAT.format(LocalDateTime.of(
                 rand.nextInt(50)+1970,
-                rand.nextInt(12),
-                rand.nextInt(27),
+                rand.nextInt(12) + 1,
+                rand.nextInt(27) + 1,
                 rand.nextInt(24),
                 rand.nextInt(60)));
     }

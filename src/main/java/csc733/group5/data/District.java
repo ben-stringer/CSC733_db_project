@@ -5,23 +5,14 @@ import csc733.group5.RandomDataGenerator;
 public interface District {
 
     int getId();
-
     String getName();
-
     String getStreet1();
-
     String getStreet2();
-
     String getCity();
-
     String getState();
-
     int getZip();
-
     double getTax();
-
     double getYtd();
-
     int getNextOId();
 
     static final String D_TMPL =
@@ -32,8 +23,8 @@ public interface District {
                     "d_city : '%s', " +
                     "d_state : '%s', " +
                     "d_zip : %d, " +
-                    "d_tax : %d, " +
-                    "d_ytd : %d, " +
+                    "d_tax : %f, " +
+                    "d_ytd : %f, " +
                     "d_next_o_id : %d }";
 
     static District from(final int id, final RandomDataGenerator rdg) {

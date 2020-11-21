@@ -21,8 +21,8 @@ public interface Warehouse {
                     "w_city : '%s', " +
                     "w_state : '%s', " +
                     "w_zip : %d, " +
-                    "w_tax : %d, " +
-                    "w_ytd : %d }";
+                    "w_tax : %f, " +
+                    "w_ytd : %f }";
 
     static Warehouse from(final int id, final RandomDataGenerator rdg) {
         final String name = rdg.randomWord(6,16);
