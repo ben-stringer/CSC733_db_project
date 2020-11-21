@@ -1,5 +1,11 @@
 package csc733.group5;
 
+import org.javatuples.Pair;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class RandomDataGenerator {
@@ -9,13 +15,29 @@ public class RandomDataGenerator {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'U', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     };
 
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String PHONE_TMPL = "(%d)%d-%d";
+
+
+
+
+    private static final String O_TMPL =
+            "{ O_ENTRY_D : '%s', " +
+                    "O_OL_CNT : %d, " +
+                    "O_ALL_LOCAL : %d }";
+
+    private static final String OL_TMPL =
+            "OL_DELIVERY_D : '%s', " +
+                    "OL_QUANTITY : %d, " +
+                    "OL_AMOUNT : %d, " +
+                    "OL_DIST_INFO : '%s' }";
     private final Random rand;
 
     public RandomDataGenerator() { rand = new Random(); }
 
     public RandomDataGenerator(final int seed) { rand = new Random(seed); }
 
-    public boolean nextBoolean() { return rand.nextBoolean(); }
+    public Random rand() { return rand; }
 
     public String randomWord(final int minLength, final int maxLength) {
         return randomWord(rand.nextInt(maxLength-minLength) + minLength);
@@ -41,45 +63,30 @@ public class RandomDataGenerator {
         return (int)(rand.nextDouble() * 100000);
     }
 
-    public String randomWarehouse(final int id) {
-        return new StringBuilder()
-                .append("{ w_id : 'w_").append(id)
-                .append("', w_name : '").append(randomWord(6,16))
-                .append("', w_street_1 : '").append(randomStreet())
-                .append("', w_city : '").append(randomWord())
-                .append("', w_state : '").append(randomWord(2))
-                .append("', w_zip : ").append(randomZip())
-                .append("}")
-                .toString();
+    public String randomPhone() {
+        return String.format(PHONE_TMPL,
+                (int)(rand.nextDouble() * 1000),
+                (int)(rand.nextDouble() * 1000),
+                (int)(rand.nextDouble() * 10000));
     }
 
-    public String randomDistrict(final int id) {
-        return new StringBuilder()
-                .append('{')
-                .append("d_id : 'd_").append(id)
-                .append("', d_name : '").append(randomWord(6,16))
-                .append("', d_street_1 : '").append(randomStreet())
-                .append("', d_city : '").append(randomWord())
-                .append("', d_state : '").append(randomWord(2))
-                .append("', d_zip : ").append(randomZip())
-                .append("}")
-                .toString();
+    public String randomDate() {
+        return DATE_FORMAT.format(LocalDateTime.of(
+                rand.nextInt(50)+1970,
+                rand.nextInt(12),
+                rand.nextInt(27),
+                rand.nextInt(24),
+                rand.nextInt(60)));
     }
 
-    public String randomItem(final int id) {
-        return new StringBuilder()
-                .append('{')
-                .append("i_id : 'i_").append(id)
-                .append("', i_name : '").append(randomWord(6,16))
-                .append("', i_price : ").append(Math.abs(rand.nextInt(10000)))
-                .append("}")
-                .toString();
-    }
+    public Pair<String, List<String>> randomOrder(final List<Integer> itemCosts) {
+        final int numItems = rand.nextInt(10)+5;
+        final String order = String.format(O_TMPL, randomDate(), numItems, 1);
+        final List<String> orderLines = new ArrayList<>(numItems);
+        for (int i = 0; i < numItems; i++) {
 
-    public String randomItemQuantity() {
-        return new StringBuilder().append("{ s_quantity : ")
-                .append(Math.abs(rand.nextInt(200))+1)
-                .append("}")
-                .toString();
+//            orderLines.add(String.format(OL_TMPL, randomDate()))
+        }
+        return Pair.with(order, orderLines);
     }
 }

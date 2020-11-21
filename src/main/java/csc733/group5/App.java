@@ -3,11 +3,29 @@
  */
 package csc733.group5;
 
+import csc733.group5.data.*;
+import org.javatuples.Pair;
 import org.neo4j.driver.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class App {
 
+    private static final int NUM_CUST_PER_DIST = // 3000;
+            10;
+    private static final int NUM_ITEMS = // 10000;
+            200;
+    private static final int NUM_ORDERS = // 30000;
+            200;
 
+
+    private static final String CREATE_WH_TMPL = "create (w:Warehouse %s)\n";
+    private static final String CREATE_D_TMPL = "create (w)-[:W_SVC_D]->(d_%d:District %s)\n";
+    private static final String CREATE_I_S_TMPL = "create (w)-[:WH_STOCK]->(:Stock %s)<-[:I_STOCK]-(i_%d:Item %s)\n";
+    private static final String CREATE_C_TMPL = "create (d_%d:District)-[:D_SVC_C]->(c_%d %s)\n";
 
     public static void main(String[] args) {
         System.out.println("Hello CSC733 World");
@@ -19,25 +37,28 @@ public class App {
 
         final StringBuilder cypher = new StringBuilder();
         // create a warehouse
-        cypher.append(String.format("create (w:Warehouse %s)\n", rdg.randomWarehouse(1)));
+        cypher.append(String.format(CREATE_WH_TMPL, Warehouse.from(1, rdg)));
         // create 10 districts for the warehouse
         for (int i = 0; i < 10; i++) {
-            cypher.append(String.format("create (w)-[:SERVICES]->(d%d:District %s)\n", i, rdg.randomDistrict(i)));
+            cypher.append(String.format(CREATE_D_TMPL, i, District.from(i, rdg)));
         }
-        // create 100k items, not necessarily in stock
-        for (int i = 0; i < 200; i++) {
-            if (rdg.nextBoolean()) {
-                // If item is in stock
-                cypher.append(String.format(
-                        "create (w)-[:IN_STOCK %s]->(i%d:Item %s)\n",
-                        rdg.randomItemQuantity(),
-                        i,
-                        rdg.randomItem(i)));
-            } else {
-                // Item is not in stock
-                // TODO: Do we want to include a link anyway and set quantity to 0?
-                cypher.append(String.format("create (i%d:Item %s)\n", i, rdg.randomItem(i)));
+        // create 100k items
+        final List<Item> items = new ArrayList<>(NUM_ITEMS);
+        for (int i = 0; i < NUM_ITEMS; i++) {
+            final Item item = Item.from(i, rdg);
+            items.add(item);
+            cypher.append(String.format(CREATE_I_S_TMPL, i, Stock.from(rdg), i, item));
+        }
+        // create 30k customers
+        for (int i = 0; i < 10; i++) {
+            final int ik = i * 1000;
+            for (int j = 0; j < NUM_CUST_PER_DIST; j++) {
+                final int cid = ik + j;
+                cypher.append(String.format(CREATE_C_TMPL, i, cid, Customer.from(cid, rdg)));
             }
+        }
+        for (int i = 0; i < NUM_ORDERS; i++) {
+
         }
         final String cypherText = cypher.toString();
         System.out.println("Submitting the following cypher:");
