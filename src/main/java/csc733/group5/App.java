@@ -11,7 +11,7 @@ public class App {
     public static void main(String[] args) {
         System.out.println("Hello CSC733 World");
 
-        final String cypherText = new RandomInitialState(new RandomDataGenerator(42)).toCypherCreate();
+        final String cypherText = RandomInitialState.newCypherCreateString(new RandomDataGenerator(42));
 
         System.out.println("Submitting the following cypher:");
         System.out.println("********************************************************************************");
