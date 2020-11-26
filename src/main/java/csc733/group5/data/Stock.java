@@ -11,8 +11,10 @@ public interface Stock {
     int getRemoteCnt();
     String getData();
 
+    String toCypherCreateString();
+
     static final String S_TMPL =
-            "{ s_quantity : '%d', " +
+            "{ s_quantity : %d, " +
                     "s_dist_01 : '%s', " +
                     "s_dist_02 : '%s', " +
                     "s_dist_03 : '%s', " +
@@ -63,7 +65,7 @@ public interface Stock {
         @Override public void setOrderCnt(int newOrderCnt) { orderCnt = newOrderCnt; }
         @Override public int getRemoteCnt() { return remoteCnt; }
         @Override public String getData() { return data; }
-        @Override public String toString() {
+        @Override public String toCypherCreateString() {
             return String.format(S_TMPL, quantity, dist[0], dist[1],
                     dist[2], dist[3], dist[4], dist[5], dist[6], dist[7],
                     dist[8], dist[9], ytd, orderCnt, remoteCnt, data);

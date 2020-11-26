@@ -1,11 +1,7 @@
 package csc733.group5;
 
-import org.javatuples.Pair;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class RandomDataGenerator {
@@ -15,16 +11,12 @@ public class RandomDataGenerator {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'U', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     };
 
+    private static final String[] lastNameSyllables = {
+        "BAR", "OUGHT", "ABLE", "PRI", "PRES", "ESE", "ANTI", "CALLY", "ATION", "EING"
+    };
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final String PHONE_TMPL = "(%d)%d-%d";
 
-
-
-
-    private static final String O_TMPL =
-            "{ O_ENTRY_D : '%s', " +
-                    "O_OL_CNT : %d, " +
-                    "O_ALL_LOCAL : %d }";
     private final Random rand;
 
     public RandomDataGenerator() { rand = new Random(); }
@@ -44,6 +36,11 @@ public class RandomDataGenerator {
     }
 
     public String randomWord() { return randomWord(rand.nextInt(16)); }
+
+    public String randomLastName() {
+        final int r = rand.nextInt(1000);
+        return String.format("%s%s%s", lastNameSyllables[r/100%10], lastNameSyllables[r/10%10], lastNameSyllables[r%10]);
+    }
 
     public String randomStreet() {
         return new StringBuilder()
@@ -73,14 +70,7 @@ public class RandomDataGenerator {
                 rand.nextInt(60)));
     }
 
-    public Pair<String, List<String>> randomOrder(final List<Integer> itemCosts) {
-        final int numItems = rand.nextInt(10)+5;
-        final String order = String.format(O_TMPL, randomDate(), numItems, 1);
-        final List<String> orderLines = new ArrayList<>(numItems);
-        for (int i = 0; i < numItems; i++) {
-
-//            orderLines.add(String.format(OL_TMPL, randomDate()))
-        }
-        return Pair.with(order, orderLines);
+    public String currentDate() {
+        return DATE_FORMAT.format(LocalDateTime.now());
     }
 }

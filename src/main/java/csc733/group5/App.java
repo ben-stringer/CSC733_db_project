@@ -3,36 +3,14 @@
  */
 package csc733.group5;
 
-import csc733.group5.data.RandomInitialState;
-import org.neo4j.driver.*;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 
 public class App {
 
-    public static void main(String[] args) {
-        System.out.println("Hello CSC733 World");
-
-        final String cypherText = RandomInitialState.newCypherCreateString(new RandomDataGenerator(42));
-
-        System.out.println("Submitting the following cypher:");
-        System.out.println("********************************************************************************");
-        System.out.println(cypherText);
-        System.out.println("********************************************************************************");
-
-
-        final Driver driver = GraphDatabase.driver("bolt://localhost:7687",
+    public static final Driver startDriver() {
+        return GraphDatabase.driver("bolt://localhost:7687",
                 AuthTokens.basic("neo4j", "secret"));
-        try (final Session session = driver.session()) {
-            final Transaction tx = session.beginTransaction();
-            // Clear everything already in the database
-            tx.run("match (n) detach delete n");
-
-            System.out.println("Executing query");
-            tx.run(cypherText);
-            System.out.println("Query execution completed; attempting to commit");
-            tx.commit();
-            System.out.println("Commit completed, closing driver");
-        }
-        driver.close();
-        System.out.println("Driver closed, application exiting");
     }
 }

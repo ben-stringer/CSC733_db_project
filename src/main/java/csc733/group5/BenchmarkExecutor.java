@@ -1,7 +1,12 @@
 package csc733.group5;
 
-import java.util.Random;
-import java.util.concurrent.*;
+import csc733.group5.tx.*;
+import org.neo4j.driver.Driver;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class BenchmarkExecutor {
 
@@ -17,10 +22,12 @@ public class BenchmarkExecutor {
     private final CountDownLatch startTxProcSemaphore = new CountDownLatch(1);
     private final CountDownLatch endSemaphore = new CountDownLatch(1);
 
-    private final Random rand;
+    private final Driver graphdb;
+    private final RandomDataGenerator rdg;
 
-    public BenchmarkExecutor(final Random _rand) {
-        rand = _rand;
+    public BenchmarkExecutor(final Driver _graphdb, final RandomDataGenerator _rdg) {
+        graphdb = _graphdb;
+        rdg = _rdg;
         for (int i = 0; i < 5; i++) exec.submit(() -> {
             try {
                 startTxProcSemaphore.await();
@@ -59,14 +66,16 @@ public class BenchmarkExecutor {
      * @return
      */
     private Runnable generate() {
-        return () -> {
-            try {
-                Thread.sleep(rand.nextInt(4000));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            metrics.completedTransaction();
-        };
+        final double r = rdg.rand().nextDouble();
+        if (r < 0.04)
+            return new StockLevelTransaction(graphdb, rdg);
+        if (r < 0.08)
+            return new DeliveryTransaction(graphdb, rdg);
+        if (r < 0.12)
+            return new OrderStatusTransaction();
+        if (r < 0.55)
+            return new PaymentTransaction();
+        return new NewOrderTransaction(graphdb, rdg, metrics::completedTransaction);
     }
 
     public final void begin() {
@@ -82,7 +91,7 @@ public class BenchmarkExecutor {
     }
 
     public static void main(final String[] args) throws InterruptedException {
-        final BenchmarkExecutor bex = new BenchmarkExecutor(new Random(42));
+        final BenchmarkExecutor bex = new BenchmarkExecutor(null, new RandomDataGenerator(42));
         bex.begin();
         Thread.sleep(15000);
         bex.end();

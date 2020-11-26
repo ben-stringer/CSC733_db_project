@@ -24,6 +24,8 @@ public interface Customer {
     int getDeliveryCnt();
     String getData();
 
+    String toCypherCreateString();
+
     static final String C_TMPL =
             "{ c_id : %d, " +
                     "c_first : '%s', " +
@@ -42,7 +44,7 @@ public interface Customer {
                     "c_balance : %f, " +
                     "c_ytd_payment : %f, " +
                     "c_payment_cnt : '%s', " +
-                    "c_delivery_cnt : '%s', " +
+                    "c_delivery_cnt : %d, " +
                     "c_data : '%s' }";
 
     static Customer from(final int id, final RandomDataGenerator rdg) {
@@ -74,7 +76,7 @@ public interface Customer {
             id = _id;
             first = rdg.randomWord();
             middle = rdg.randomWord();
-            last = rdg.randomWord();
+            last = rdg.randomLastName();
             street1 = rdg.randomStreet();
             street2 = rdg.rand().nextBoolean() ? rdg.randomStreet() : "";
             city = rdg.randomWord();
@@ -108,7 +110,7 @@ public interface Customer {
         @Override public int getPaymentCnt() { return paymentCnt; }
         @Override public int getDeliveryCnt() { return deliveryCnt; }
         @Override public String getData() { return data; }
-        @Override public String toString() {
+        @Override public String toCypherCreateString() {
             return String.format(C_TMPL, id, first, middle, last, street1, street2,
                     city, state, zip, phone, since, credit, creditLim, discount,
                     balance, ytd, paymentCnt, deliveryCnt, data);

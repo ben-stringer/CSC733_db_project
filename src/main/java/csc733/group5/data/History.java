@@ -2,14 +2,13 @@ package csc733.group5.data;
 
 import csc733.group5.RandomDataGenerator;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public interface History {
 
     String getDate();
     double getAmount();
     String getData();
+
+    String toCypherCreateString();
 
     static final String H_TMPL =
             "{ h_date : '%s', " +
@@ -23,7 +22,7 @@ public interface History {
             @Override public String getDate() { return date; }
             @Override public double getAmount() { return amount; }
             @Override public String getData() { return data; }
-            @Override public String toString() { return String.format(H_TMPL, date, amount, data); }
+            @Override public String toCypherCreateString() { return String.format(H_TMPL, date, amount, data); }
         };
     }
 }

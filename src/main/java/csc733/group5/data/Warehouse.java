@@ -13,8 +13,10 @@ public interface Warehouse {
     double getTax();
     double getYtd();
 
+    String toCypherCreateString();
+
     static final String WH_TMPL =
-            "{ w_id : 'w_%d', " +
+            "{ w_id : %d, " +
                     "w_name : '%s', " +
                     "w_street_1 : '%s', " +
                     "w_street_2 : '%s', " +
@@ -27,12 +29,11 @@ public interface Warehouse {
     static Warehouse from(final int id, final RandomDataGenerator rdg) {
         final String name = rdg.randomWord(6,16);
         final String street1 = rdg.randomStreet();
-        final String street2 = rdg.rand().nextBoolean() ?
-                rdg.randomStreet() : "";
+        final String street2 = rdg.rand().nextBoolean() ? rdg.randomStreet() : "";
         final String city = rdg.randomWord();
         final String state = rdg.randomWord(2);
         final int zip = rdg.randomZip();
-        final double tax = rdg.rand().nextDouble() * 1000;
+        final double tax = rdg.rand().nextDouble() / 10;
         final double ytd = rdg.rand().nextDouble() * 1000000000;
         return new Warehouse() {
             @Override public int getId() { return id; }
@@ -44,7 +45,7 @@ public interface Warehouse {
             @Override public int getZip() { return zip; }
             @Override public double getTax() { return tax; }
             @Override public double getYtd() { return ytd; }
-            @Override public String toString() {
+            @Override public String toCypherCreateString() {
                 return String.format(WH_TMPL, id, name, street1, street2,
                         city, state, zip, tax, ytd);
             }
