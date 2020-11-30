@@ -18,7 +18,7 @@ public class NewOrderTransaction implements Runnable {
             "match (w:Warehouse {w_id : %d})-[:W_SVC_D]->(d:District { d_id : %d}) " +
                     "return d.d_tax, d.d_next_o_id";
     private static final String UPDATE_D_NEXTID_TMPL =
-            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d}) " +
+            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(d:District { d_id : %d}) " +
                     "set d.d_next_o_id = d.d_next_o_id + 1";
     private static final String MATCH_CUST_FIELDS_TMPL =
             "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(c:Customer { c_id : %d }) " +
@@ -33,7 +33,7 @@ public class NewOrderTransaction implements Runnable {
     private static final String UPDATE_STOCK_QTY_TMPL =
             "match (i:Item {i_id : %d})-[:IN_STOCK]->(s:Stock) set s.s_quantity = %d";
     private static final String CREATE_ORDERLINE_TMPL =
-            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(:Customer)-[:PLACED_ORDER]->(o:Order {o_id : %d}), (i:Item : {i_id : %d} " +
+            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(:Customer)-[:PLACED_ORDER]->(o:Order {o_id : %d}), (i:Item {i_id : %d}) " +
                     "create (o)-[:ORDER_LINE]->(:OrderLine %s)-[:OL_ITEM]->(i)";
 
 
@@ -53,7 +53,7 @@ public class NewOrderTransaction implements Runnable {
         rdg = _rdg;
         onCompleteCallback = _onCompleteCallback;
         dId = rdg.rand().nextInt(10);
-        cId = dId * 10000 + rdg.rand().nextInt(RandomInitialState.NUM_CUST_PER_DIST);
+        cId = rdg.rand().nextInt(RandomInitialState.NUM_CUST_PER_DIST);
         olCount = rdg.rand().nextInt(10) + 5;
         order = Order.from(rdg, olCount);
         itemNumbers = Stream
@@ -66,6 +66,7 @@ public class NewOrderTransaction implements Runnable {
     }
     @Override
     public void run() {
+        System.out.println("NewOrderTransaction --> Begin");
         try (final Session session = graphdb.session()) {
             try (final Transaction tx = session.beginTransaction()) {
                 //• The row in the WAREHOUSE table with matching W_ID is selected and W_TAX, the warehouse tax rate, is retrieved.
@@ -165,6 +166,7 @@ public class NewOrderTransaction implements Runnable {
             }
         }
         onCompleteCallback.run();
+        System.out.println("NewOrderTransaction --> Complete");
     }
 
     public static void main(final String[] args) {

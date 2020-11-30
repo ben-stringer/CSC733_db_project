@@ -76,6 +76,7 @@ public class PaymentTransaction implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("PaymentTransaction --> Begin");
         //• A database transaction is started.
         try (final Session session = driver.session()) {
             try (final Transaction tx = session.beginTransaction()) {
@@ -164,6 +165,7 @@ public class PaymentTransaction implements Runnable {
                 tx.commit();
             }
         }
+        System.out.println("PaymentTransaction --> Complete");
     }
 
     public static final void main(final String[] args) {

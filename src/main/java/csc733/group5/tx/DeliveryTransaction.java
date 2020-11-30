@@ -40,6 +40,7 @@ public class DeliveryTransaction implements Runnable {
     }
     @Override
     public void run() {
+        System.out.println("DeliveryTransaction --> Begin");
         int dId = rdg.rand().nextInt(10);
         int processedDeliveries = 0;
         final int startingDId = dId;
@@ -109,12 +110,15 @@ public class DeliveryTransaction implements Runnable {
                 tx.commit();
             }
         }
+        System.out.println("DeliveryTransaction --> Complete");
     }
 
     public static void main(final String[] args) {
         try (final Driver driver = App.startDriver()) {
             final RandomDataGenerator rdg = new RandomDataGenerator(42);
-            new DeliveryTransaction(driver, rdg).run();
+            for (int i = 0; i < 10; i++) {
+                new DeliveryTransaction(driver, rdg).run();
+            }
         }
     }
 }

@@ -74,6 +74,7 @@ public class OrderStatusTransaction implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("OrderStatusTransaction --> Begin");
         //• A database transaction is started.
         try (final Session session = driver.session()) {
             try (final Transaction tx = session.beginTransaction()) {
@@ -128,6 +129,7 @@ public class OrderStatusTransaction implements Runnable {
                 tx.commit();
             }
         }
+        System.out.println("OrderStatusTransaction --> Complete");
     }
 
     public static void main(final String[] args) {

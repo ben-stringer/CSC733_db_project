@@ -39,6 +39,7 @@ public class StockLevelTransaction implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("StockLevelTransaction --> Begin");
         try (final Session session = driver.session()) {
             try (final Transaction tx = session.beginTransaction()) {
                 //• The row in the DISTRICT table with matching D_W_ID and D_ID is selected and D_NEXT_O_ID is retrieved.
@@ -67,12 +68,15 @@ public class StockLevelTransaction implements Runnable {
                 System.out.format("The number of items low in stock at district %d is %d.\n", dId, res.single().get("count(s)").asInt());
             }
         }
+        System.out.println("StockLevelTransaction --> Complete");
     }
 
     public static void main(final String[] args) {
         try (final Driver driver = App.startDriver()) {
             final RandomDataGenerator rdg = new RandomDataGenerator(42);
-            new StockLevelTransaction(driver, rdg).run();
+            for (int i = 0; i < 10; i++) {
+                new StockLevelTransaction(driver, rdg).run();
+            }
         }
     }
 }
