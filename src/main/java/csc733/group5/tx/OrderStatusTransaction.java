@@ -16,67 +16,65 @@ public class OrderStatusTransaction implements Runnable {
 
     private final Driver driver;
     private final RandomDataGenerator rdg;
+    private final int wId = 1;
+    private final int dId;
+    private final Function<Transaction, Quintet<Integer, Double, String, String, String>> customerQuery;
 
     public OrderStatusTransaction(final Driver _driver, final RandomDataGenerator _rdg) {
         driver = _driver;
         rdg = _rdg;
-    }
-
-    @Override
-    public void run() {
-        //• A database transaction is started.
-        final int wId = 1;
-        final int dId = rdg.rand().nextInt(10);
-        final Function<Transaction, Quintet<Integer, Double, String, String, String>> customerQuery;
-        {
-            if (rdg.rand().nextDouble() > 0.4) {
+        dId = rdg.rand().nextInt(10);
+        if (rdg.rand().nextDouble() > 0.4) {
+            customerQuery = (tx) -> {
                 //• Case 1, the customer is selected based on customer number:
                 // the row in the CUSTOMER table with matching C_W_ID, C_D_ID, and C_ID is selected and C_BALANCE, C_FIRST,
                 // C_MIDDLE, and C_LAST are retrieved.
-                customerQuery = (tx) -> {
-                    final int cId = rdg.rand().nextInt(RandomInitialState.NUM_CUST_PER_DIST);
-                    final Result res = tx.run(String.format(
-                            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(c:Customer { c_id : %d }) " +
-                                    "return c.c_balance, c.c_first, c.c_middle, c.c_last",
-                            wId, dId, cId));
-                    final Record rec = res.single();
-                    return Quintet.with(cId,
-                            rec.get("c.c_balance").asDouble(),
-                            rec.get("c.c_first").asString(),
-                            rec.get("c.c_middle").asString(),
-                            rec.get("c.c_last").asString());
-                };
-            } else {
+                final int cId = rdg.rand().nextInt(RandomInitialState.NUM_CUST_PER_DIST);
+                final Result res = tx.run(String.format(
+                        "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(c:Customer { c_id : %d }) " +
+                                "return c.c_balance, c.c_first, c.c_middle, c.c_last",
+                        wId, dId, cId));
+                final Record rec = res.single();
+                return Quintet.with(cId,
+                        rec.get("c.c_balance").asDouble(),
+                        rec.get("c.c_first").asString(),
+                        rec.get("c.c_middle").asString(),
+                        rec.get("c.c_last").asString());
+            };
+        } else {
+            customerQuery = (tx) -> {
                 //• Case 2, the customer is selected based on customer last name:
                 // all rows in the CUSTOMER table with matching C_W_ID, C_D_ID and C_LAST are selected
                 // sorted by C_FIRST in ascending order. Let n be the number of rows selected.
                 // C_BALANCE, C_FIRST, C_MIDDLE, and C_LAST are retrieved from the row at position n/ 2 rounded up
                 // in the sorted set of selected rows from the CUSTOMER table.
-                customerQuery = (tx) -> {
-                    Record rec = null;
-                    while (rec == null) {
-                        final String cLast = rdg.randomLastName();
-                        final Result res = tx.run(String.format(
-                                "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(c:Customer { c_last : '%s' }) " +
-                                        "with c order by c.c_first " +
-                                        "return c.c_id, c.c_balance, c.c_first, c.c_middle, c.c_last",
-                                wId, dId, cLast));
-                        final List<Record> records = res.list();
-                        final int n = records.size();
-                        if (n > 0) {
-                            rec = records.get(n/2);
-                        }
+                Record rec = null;
+                while (rec == null) {
+                    final String cLast = rdg.randomLastName();
+                    final Result res = tx.run(String.format(
+                            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(c:Customer { c_last : '%s' }) " +
+                                    "with c order by c.c_first " +
+                                    "return c.c_id, c.c_balance, c.c_first, c.c_middle, c.c_last",
+                            wId, dId, cLast));
+                    final List<Record> records = res.list();
+                    final int n = records.size();
+                    if (n > 0) {
+                        rec = records.get(n/2);
                     }
-                    return Quintet.with(rec.get("c.c_id").asInt(),
-                            rec.get("c.c_balance").asDouble(),
-                            rec.get("c.c_first").asString(),
-                            rec.get("c.c_middle").asString(),
-                            rec.get("c.c_last").asString());
+                }
+                return Quintet.with(rec.get("c.c_id").asInt(),
+                        rec.get("c.c_balance").asDouble(),
+                        rec.get("c.c_first").asString(),
+                        rec.get("c.c_middle").asString(),
+                        rec.get("c.c_last").asString());
 
-                };
-            }
+            };
         }
-        
+    }
+
+    @Override
+    public void run() {
+        //• A database transaction is started.
         try (final Session session = driver.session()) {
             try (final Transaction tx = session.beginTransaction()) {
                 final Quintet<Integer, Double, String, String, String> queryResult = customerQuery.apply(tx);

@@ -40,27 +40,32 @@ public class NewOrderTransaction implements Runnable {
     private Driver graphdb;
     private RandomDataGenerator rdg;
     private Runnable onCompleteCallback;
+    private final int wId = 1;
+    private final int dId;
+    private final int cId;
+    private final int olCount;
+    private final Order order;
+    private final List<Pair<Integer,Integer>> itemNumbers;
+    private final boolean isFailure;
 
     public NewOrderTransaction(final Driver _graphdb, final RandomDataGenerator _rdg, final Runnable _onCompleteCallback) {
         graphdb = _graphdb;
         rdg = _rdg;
         onCompleteCallback = _onCompleteCallback;
-    }
-    @Override
-    public void run() {
-        final int wId = 1;
-        final int dId = rdg.rand().nextInt(10);
-        final int cId = dId * 10000 + rdg.rand().nextInt(RandomInitialState.NUM_CUST_PER_DIST);
-        final int olCount = rdg.rand().nextInt(10) + 5;
-        final Order order = Order.from(rdg, olCount);
-        final List<Pair<Integer,Integer>> itemNumbers = Stream
+        dId = rdg.rand().nextInt(10);
+        cId = dId * 10000 + rdg.rand().nextInt(RandomInitialState.NUM_CUST_PER_DIST);
+        olCount = rdg.rand().nextInt(10) + 5;
+        order = Order.from(rdg, olCount);
+        itemNumbers = Stream
                 .generate(() -> rdg.rand().nextInt(RandomInitialState.NUM_ITEMS))
                 .distinct().limit(olCount)
                 .map(iId -> Pair.with(iId, rdg.rand().nextInt(10)+1))
                 .collect(Collectors.toList());
-        final boolean isFailure = rdg.rand().nextInt(100) == 0;
+        isFailure = rdg.rand().nextInt(100) == 0;
         if (isFailure) itemNumbers.set(olCount-1, Pair.with(Integer.MIN_VALUE, 10));
-
+    }
+    @Override
+    public void run() {
         try (final Session session = graphdb.session()) {
             try (final Transaction tx = session.beginTransaction()) {
                 //• The row in the WAREHOUSE table with matching W_ID is selected and W_TAX, the warehouse tax rate, is retrieved.

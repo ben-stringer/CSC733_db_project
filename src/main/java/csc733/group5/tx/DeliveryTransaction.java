@@ -32,6 +32,7 @@ public class DeliveryTransaction implements Runnable {
 
     private final Driver driver;
     private final RandomDataGenerator rdg;
+    private final int wId = 1;
 
     public DeliveryTransaction(final Driver _driver, final RandomDataGenerator _rdg) {
         driver = _driver;
@@ -39,7 +40,6 @@ public class DeliveryTransaction implements Runnable {
     }
     @Override
     public void run() {
-        final int wId = 1;
         int dId = rdg.rand().nextInt(10);
         int processedDeliveries = 0;
         final int startingDId = dId;

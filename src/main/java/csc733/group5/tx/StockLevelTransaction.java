@@ -26,18 +26,19 @@ public class StockLevelTransaction implements Runnable {
 
     private final Driver driver;
     private final RandomDataGenerator rdg;
+    private final int wId = 1;
+    private final int dId;
+    private final int lowStockThreshold;
 
     public StockLevelTransaction(final Driver _driver, final RandomDataGenerator _rdg) {
         driver = _driver;
         rdg = _rdg;
+        dId = rdg.rand().nextInt(10);
+        lowStockThreshold = rdg.rand().nextInt(10) + 10;
     }
 
     @Override
     public void run() {
-        final int wId = 1;
-        final int dId = rdg.rand().nextInt(10);
-        final int lowStockThreshold = rdg.rand().nextInt(10) + 10;
-
         try (final Session session = driver.session()) {
             try (final Transaction tx = session.beginTransaction()) {
                 //• The row in the DISTRICT table with matching D_W_ID and D_ID is selected and D_NEXT_O_ID is retrieved.

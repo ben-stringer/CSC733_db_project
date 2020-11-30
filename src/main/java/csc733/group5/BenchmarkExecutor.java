@@ -93,7 +93,7 @@ public class BenchmarkExecutor {
     public static void main(final String[] args) throws InterruptedException {
         final BenchmarkExecutor bex = new BenchmarkExecutor(null, new RandomDataGenerator(42));
         bex.begin();
-        Thread.sleep(15000);
+        Thread.sleep(300000);
         bex.end();
         final int completed = bex.metrics.getCompletedTransactions();
         final long elapsedNano = bex.metrics.getRuntimeInMillis();
