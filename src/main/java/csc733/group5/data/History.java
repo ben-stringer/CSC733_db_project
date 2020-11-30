@@ -25,4 +25,13 @@ public interface History {
             @Override public String toCypherCreateString() { return String.format(H_TMPL, date, amount, data); }
         };
     }
+
+    static History from(final String date, final double amount, final String data) {
+        return new History() {
+            @Override public String getDate() { return date; }
+            @Override public double getAmount() { return amount; }
+            @Override public String getData() { return data; }
+            @Override public String toCypherCreateString() { return String.format(H_TMPL, date, amount, data); }
+        };
+    }
 }

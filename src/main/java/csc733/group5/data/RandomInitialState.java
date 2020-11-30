@@ -163,6 +163,7 @@ public class RandomInitialState {
 
     public static void main(String[] args) {
         System.out.println("Hello CSC733 World");
+        final long startTime = System.currentTimeMillis();
         final RandomDataGenerator rdg = new RandomDataGenerator(42);
 
         try (final Driver driver = App.startDriver()) {
@@ -199,6 +200,7 @@ public class RandomInitialState {
             }
             System.out.println("Closing driver");
         }
-        System.out.println("Driver closed, application exiting");
+        final long endTime = System.currentTimeMillis();
+        System.out.format("Driver closed.  Ingest took %f seconds.\n", (endTime - startTime)*1000.0);
     }
 }
