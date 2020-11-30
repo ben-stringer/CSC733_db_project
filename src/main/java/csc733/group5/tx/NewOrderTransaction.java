@@ -7,7 +7,6 @@ import org.javatuples.Pair;
 import org.neo4j.driver.*;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

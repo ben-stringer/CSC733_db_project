@@ -24,6 +24,8 @@ public interface Customer {
     int getDeliveryCnt();
     String getData();
 
+    District getDistrict();
+
     String toCypherCreateString();
 
     static final String C_TMPL =
@@ -47,8 +49,8 @@ public interface Customer {
                     "c_delivery_cnt : %d, " +
                     "c_data : '%s' }";
 
-    static Customer from(final int id, final RandomDataGenerator rdg) {
-        return new PojoCustomer(id, rdg);
+    static Customer from(final int id, final District district, final RandomDataGenerator rdg) {
+        return new PojoCustomer(id, district, rdg);
     }
 
     class PojoCustomer implements Customer {
@@ -72,7 +74,9 @@ public interface Customer {
         private final int deliveryCnt = 0;
         private final String data = "";
 
-        PojoCustomer(final int _id, final RandomDataGenerator rdg) {
+        private final District district;
+
+        PojoCustomer(final int _id, final District _district, final RandomDataGenerator rdg) {
             id = _id;
             first = rdg.randomWord();
             middle = rdg.randomWord();
@@ -88,6 +92,7 @@ public interface Customer {
             creditLim = rdg.rand().nextInt(4000)+1000;
             discount = rdg.rand().nextDouble()/10;
             ytd = rdg.rand().nextDouble() * 5000;
+            district = _district;
         }
 
         @Override public int getId() { return id; }
@@ -110,6 +115,7 @@ public interface Customer {
         @Override public int getPaymentCnt() { return paymentCnt; }
         @Override public int getDeliveryCnt() { return deliveryCnt; }
         @Override public String getData() { return data; }
+        @Override public District getDistrict() { return district; }
         @Override public String toCypherCreateString() {
             return String.format(C_TMPL, id, first, middle, last, street1, street2,
                     city, state, zip, phone, since, credit, creditLim, discount,

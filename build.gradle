@@ -25,6 +25,7 @@ dependencies {
     implementation 'com.google.guava:guava:29.0-jre'
     implementation 'org.neo4j.driver:neo4j-java-driver:4.1.1'
 	implementation 'org.javatuples:javatuples:1.2'
+    implementation 'com.codepoetics:protonpack:1.16'
 
 
     // Use JUnit test framework
