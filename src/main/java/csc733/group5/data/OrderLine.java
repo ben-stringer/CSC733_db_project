@@ -8,7 +8,8 @@ public class OrderLine {
             "{ ol_delivery_d : '%s', " +
                     "ol_quantity : %d, " +
                     "ol_amount : %f, " +
-                    "ol_dist_info : '%s' }";
+                    "ol_dist_info : '%s'," +
+                    "ol_supply_w_id : %d }";
 
     public static OrderLine from(final Item item, final String deliveryDate, final String distInfo, final int quantity) {
         //      - The amount for the item in the order (OL_AMOUNT) is computed as: OL_QUANTITY*I_PRICE
@@ -46,7 +47,7 @@ public class OrderLine {
     public OrderLine setDistInfo(final String _distInfo) { distInfo = _distInfo; return this; }
 
     public String toCypherCreateString() {
-        return String.format(OL_TMPL, getDeliveryDate(), getQuantity(), getAmount(), getDistInfo());
+        return String.format(OL_TMPL, getDeliveryDate(), getQuantity(), getAmount(), getDistInfo(), 1);
     }
 
 

@@ -33,7 +33,9 @@ public class NewOrderTransaction implements Runnable {
     private static final String UPDATE_STOCK_QTY_TMPL =
             "match (i:Item {i_id : %d})-[:IN_STOCK]->(s:Stock) set s.s_quantity = %d";
     private static final String CREATE_ORDERLINE_TMPL =
-            "match (o:Order {o_id : %d}) create (o)-[:ORDER_LINE]->(:OrderLine %s)";
+            "match (:Warehouse {w_id : %d})-[:W_SVC_D]->(:District { d_id : %d})-[:D_SVC_C]->(:Customer)-[:PLACED_ORDER]->(o:Order {o_id : %d}), (i:Item : {i_id : %d} " +
+                    "create (o)-[:ORDER_LINE]->(:OrderLine %s)-[:OL_ITEM]->(i)";
+
 
     private Driver graphdb;
     private RandomDataGenerator rdg;
@@ -144,7 +146,8 @@ public class NewOrderTransaction implements Runnable {
                             //  and OL_DIST_INFO is set to the content of S_DIST_xx,
                             //  where xx represents the district number (OL_D_ID)
                             final OrderLine ol = OrderLine.from(item, null, sDist, itemCount);
-                            tx.run(String.format(CREATE_ORDERLINE_TMPL, order.getId(), ol.toCypherCreateString()));
+                            tx.run(String.format(CREATE_ORDERLINE_TMPL,
+                                    wId, dId, order.getId(), item.getId(), ol.toCypherCreateString()));
                             return ol;
                         }).mapToDouble(OrderLine::getAmount)
                         //• The total-amount for the complete order is computed as:
