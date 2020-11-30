@@ -12,10 +12,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BenchmarkExecutor {
 
+    private static final int NUM_CONCURRENT_THREADS = 5;
     private final BenchmarkMetrics metrics = new BenchmarkMetrics();
 
-    // 5 concurrent transactions per benchmark spec; 5 additional queued transactions
-    private final ExecutorService exec = Executors.newFixedThreadPool(5);
+    private final ExecutorService exec = Executors.newFixedThreadPool(NUM_CONCURRENT_THREADS);
     // Generate tasks on a single thread
     private final ExecutorService txGen = Executors.newSingleThreadExecutor();
 
@@ -23,12 +23,13 @@ public class BenchmarkExecutor {
     private final CountDownLatch startTxGenSemaphore = new CountDownLatch(1);
     private final CountDownLatch startTxProcSemaphore = new CountDownLatch(1);
     private final CountDownLatch endSemaphore = new CountDownLatch(1);
+    private final CountDownLatch shutdownLatch = new CountDownLatch(NUM_CONCURRENT_THREADS);
 
     private final RandomDataGenerator rdg;
 
     public BenchmarkExecutor(final Driver _driver, final RandomDataGenerator _rdg) {
         rdg = _rdg;
-        for (int i = 0; i < 5; i++) exec.submit(() -> {
+        for (int i = 0; i < NUM_CONCURRENT_THREADS; i++) exec.submit(() -> {
             try {
                 startTxProcSemaphore.await();
             } catch (final InterruptedException x) {
@@ -50,6 +51,7 @@ public class BenchmarkExecutor {
                     }
                 }
             }
+            shutdownLatch.countDown();
         });
         txGen.submit(() -> {
             try {
@@ -104,6 +106,7 @@ public class BenchmarkExecutor {
             bex.begin();
             Thread.sleep(30000);
             bex.end();
+            bex.shutdownLatch.await();
             final int completed = bex.metrics.getCompletedTransactions();
             final long elapsedNano = bex.metrics.getRuntimeInMillis();
             System.out.format("Completed %d transactions in %d milliseconds, or %f per second\n",
