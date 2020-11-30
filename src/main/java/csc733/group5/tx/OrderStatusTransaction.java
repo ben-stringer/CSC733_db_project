@@ -1,10 +1,23 @@
 package csc733.group5.tx;
 
+import csc733.group5.RandomDataGenerator;
+import org.neo4j.driver.Driver;
+
 public class OrderStatusTransaction implements Runnable {
+
+    private final Driver driver;
+    private final RandomDataGenerator rdg;
+
+    public OrderStatusTransaction(final Driver _driver, final RandomDataGenerator _rdg) {
+        driver = _driver;
+        rdg = _rdg;
+    }
+
     @Override
     public void run() {
         //• A database transaction is started.
 
+        
         //• Case 1, the customer is selected based on customer number:
         // the row in the CUSTOMER table with matching C_W_ID, C_D_ID, and C_ID is selected and C_BALANCE, C_FIRST,
         // C_MIDDLE, and C_LAST are retrieved.

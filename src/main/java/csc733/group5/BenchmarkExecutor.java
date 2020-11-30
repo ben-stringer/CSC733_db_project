@@ -72,9 +72,9 @@ public class BenchmarkExecutor {
         if (r < 0.08)
             return new DeliveryTransaction(graphdb, rdg);
         if (r < 0.12)
-            return new OrderStatusTransaction();
+            return new OrderStatusTransaction(graphdb, rdg);
         if (r < 0.55)
-            return new PaymentTransaction();
+            return new PaymentTransaction(graphdb, rdg);
         return new NewOrderTransaction(graphdb, rdg, metrics::completedTransaction);
     }
 

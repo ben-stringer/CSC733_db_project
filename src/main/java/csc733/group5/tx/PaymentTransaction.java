@@ -1,6 +1,18 @@
 package csc733.group5.tx;
 
+import csc733.group5.RandomDataGenerator;
+import org.neo4j.driver.Driver;
+
 public class PaymentTransaction implements Runnable {
+
+    private final Driver driver;
+    private final RandomDataGenerator rdg;
+
+    public PaymentTransaction(final Driver _driver, final RandomDataGenerator _rdg) {
+        driver = _driver;
+        rdg = _rdg;
+    }
+
     @Override
     public void run() {
         //• A database transaction is started.

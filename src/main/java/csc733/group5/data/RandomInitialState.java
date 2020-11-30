@@ -85,6 +85,9 @@ public class RandomInitialState {
             queryChunks.add(chunk.build().collect(Collectors.joining("\n")));
             totalChunkCount++;
         }
+        queryChunks.add("create index if not exists for (w:Warehouse) on (w.w_id)");
+        queryChunks.add("create index if not exists for (d:District) on (d.d_id)");
+        totalChunkCount += 2;
         for (int di = 0; di < ris.districts.size(); di++) {
             final List<Customer> dCustomers = ris.customers.get(ris.districts.get(di));
             final String chunkPrefix = String.format("match (d:District { d_id : %d })", di);
@@ -105,6 +108,8 @@ public class RandomInitialState {
             queryChunks.add(chunk.build().collect(Collectors.joining("\n")));
             totalChunkCount++;
         }
+        queryChunks.add("create index if not exists for (c:Customer) on (c.c_id)");
+        totalChunkCount++;
         {
             final String chunkPrefix = "match (w:Warehouse { w_id : 1 })";
             Stream.Builder<String> chunk = Stream.<String>builder().add(chunkPrefix);
@@ -126,6 +131,8 @@ public class RandomInitialState {
             queryChunks.add(chunk.build().collect(Collectors.joining("\n")));
             totalChunkCount++;
         }
+        queryChunks.add("create index if not exists for (i:Item) on (i.i_id)");
+        totalChunkCount++;
         for (final Quartet<Customer, Order, List<Pair<OrderLine,Item>>,History> custQuartet : ris.orders) {
             final Stream.Builder<String> chunk = Stream.builder();
             final Customer cust = custQuartet.getValue0();
@@ -177,14 +184,14 @@ public class RandomInitialState {
                     final String query = indexedChunk.getValue();
                     final long chunkIndex = indexedChunk.getIndex();
                     System.out.format("Executing query chunk:\n%s\nCompleted %d of %d (%f%%).\n",
-                            query, chunkIndex, totalChunks, (double)(chunkIndex/totalChunks)*100);
+                            query, chunkIndex, totalChunks, ((double)chunkIndex/totalChunks)*100);
                     try (final Transaction tx = session.beginTransaction()) {
                         tx.run(query);
                         System.out.println("Committing query chunk");
                         tx.commit();
                     } catch (final Exception x) {
                         System.err.println("Caught exception executing query:\n" + query);
-                        x.printStackTrace();
+                        throw x;
                     }
                 });
 
