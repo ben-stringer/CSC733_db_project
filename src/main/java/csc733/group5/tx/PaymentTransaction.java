@@ -161,13 +161,4 @@ public class PaymentTransaction implements Tx {
         tx.commit();
         System.out.println("PaymentTransaction --> Complete");
     }
-
-    public static final void main(final String[] args) {
-//        final RandomDataGenerator rdg = new RandomDataGenerator(42);
-//            try(final Driver driver = App.startDriver()) {
-//            for (int i = 0; i < 10; i++) {
-//                new PaymentTransaction(driver, rdg).run();
-//            }
-//        }
-    }
 }

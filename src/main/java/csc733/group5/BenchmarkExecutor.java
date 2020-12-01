@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BenchmarkExecutor {
 
-    private static final int NUM_CONCURRENT_THREADS = 5;
+    private static final int NUM_CONCURRENT_THREADS = 25;
     private final BenchmarkMetrics metrics = new BenchmarkMetrics();
 
     private final ExecutorService exec = Executors.newFixedThreadPool(NUM_CONCURRENT_THREADS);
@@ -104,7 +104,7 @@ public class BenchmarkExecutor {
         try (final Driver driver = App.startDriver()) {
             final BenchmarkExecutor bex = new BenchmarkExecutor(driver, new RandomDataGenerator(42));
             bex.begin();
-            Thread.sleep(30000);
+            Thread.sleep(60_000);
             bex.end();
             bex.shutdownLatch.await();
             final int completed = bex.metrics.getCompletedTransactions();

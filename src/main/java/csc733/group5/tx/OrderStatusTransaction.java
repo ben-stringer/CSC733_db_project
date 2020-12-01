@@ -125,13 +125,4 @@ public class OrderStatusTransaction implements Tx {
         tx.commit();
         System.out.println("OrderStatusTransaction --> Complete");
     }
-
-    public static void main(final String[] args) {
-//        final RandomDataGenerator rdg = new RandomDataGenerator(42);
-//        try (final Driver driver = App.startDriver()) {
-//            for (int i = 0; i < 10; i++) {
-//                new OrderStatusTransaction(driver, rdg).run();
-//            }
-//        }
-    }
 }

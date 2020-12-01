@@ -116,6 +116,7 @@ public class NewOrderTransaction implements Tx {
             if (!res.hasNext()) {
                 System.out.format("Item id '%d' does not exist in the database.\n", itemId);
                 tx.rollback();
+                onCompleteCallback.run();
                 return;
             }
             final Record next = res.single();
@@ -166,14 +167,5 @@ public class NewOrderTransaction implements Tx {
         tx.commit();
         onCompleteCallback.run();
         System.out.println("NewOrderTransaction --> Complete");
-    }
-
-    public static void main(final String[] args) {
-//        final RandomDataGenerator rdg = new RandomDataGenerator(42);
-//        try (final Driver driver = App.startDriver()) {
-//            for (int i = 0; i < 10; i++) {
-//                new NewOrderTransaction(driver, rdg, () -> { }).run();
-//            }
-//        }
     }
 }

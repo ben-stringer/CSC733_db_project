@@ -3,6 +3,7 @@
  */
 package csc733.group5;
 
+import csc733.group5.data.RandomInitialState;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
@@ -12,5 +13,10 @@ public class App {
     public static final Driver startDriver() {
         return GraphDatabase.driver("bolt://localhost:7687",
                 AuthTokens.basic("neo4j", "secret"));
+    }
+
+    public static final void main(final String[] args) throws InterruptedException {
+        RandomInitialState.main(args);
+        BenchmarkExecutor.main(args);
     }
 }

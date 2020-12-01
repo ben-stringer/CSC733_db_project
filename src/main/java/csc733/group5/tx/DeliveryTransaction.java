@@ -104,13 +104,4 @@ public class DeliveryTransaction implements Tx {
         tx.commit();
         System.out.println("DeliveryTransaction --> Complete");
     }
-
-    public static void main(final String[] args) {
-//        try (final Driver driver = App.startDriver()) {
-//            final RandomDataGenerator rdg = new RandomDataGenerator(42);
-//            for (int i = 0; i < 10; i++) {
-//                new DeliveryTransaction(driver, rdg).run();
-//            }
-//        }
-    }
 }
